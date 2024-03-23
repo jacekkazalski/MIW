@@ -38,6 +38,14 @@ def who_wins(computer_move, player_move):
         return -1
 
 
+def calculate_stationary_vector():
+    eigenvalues, eigenvectors = np.linalg.eig(np.transpose(transition_matrix_computer))
+    stationary_index = np.argmin(np.abs(eigenvalues - 1.0))
+    stationary_vector = np.real(eigenvectors[:, stationary_index])
+    stationary_vector /= stationary_vector.sum()
+    return stationary_vector
+
+
 def learn(last_move, result, learning_rate):
     index = states.index(last_move)
 
@@ -63,6 +71,7 @@ def game(rounds, strategy=1):
     learning_rate = 0.02
     computer_move = first_move()
     player_move = first_move()
+    stationary_vector = calculate_stationary_vector()
     for x in range(rounds):
         print(f"Computer: {computer_move} Player: {player_move}")
         result = who_wins(computer_move, player_move)
@@ -70,7 +79,7 @@ def game(rounds, strategy=1):
         cash_history.append(cash)
         computer_move = next_move(computer_move, transition_matrix_computer)
         if strategy == 1:
-            player_move = next_move(player_move, transition_matrix_computer)
+            player_move = np.random.choice(states,p=stationary_vector)
         else:
             learn(player_move, result, learning_rate)
             player_move = next_move(player_move, transition_matrix_player)
@@ -83,5 +92,3 @@ def game(rounds, strategy=1):
 
 
 game(10000, 2)
-
-

@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
@@ -36,6 +37,7 @@ class LogisticRegression:
         return predictions
 
 
+# noinspection DuplicatedCode
 def main():
     size_of_data = 200
     n_classes = 4
@@ -59,7 +61,7 @@ def main():
     # Tworzenie modelu dla każdej klasy
     for _ in range(n_classes):
         model = LogisticRegression()
-        binary_labels = np.where(label_train == _,1,0)
+        binary_labels = np.where(label_train == _, 1, 0)
         print(binary_labels)
         model.train(data_train, binary_labels)
         models.append(model)
@@ -82,6 +84,21 @@ def main():
         if predicted_labels[i] == label_test[i]:
             correct += 1
     print(f"Logistic Regression Accuracy: {correct / total}")
+
+    min_x = np.min(data[:, 0])
+    max_x = np.max(data[:, 0])
+    colors = ['red', 'blue', 'green', 'magenta']
+    for _ in range(len(models)):
+        [a, b] = models[_].weights
+        c = models[_].bias
+        x = np.linspace(min_x, max_x)
+        y = sigmoid((-a*x-c)/b)
+        plt.plot(x, y, color=colors[_])
+    for _ in range(len(data_test)):
+        plt.scatter(data_test[_, 0], data_test[_, 1], c=colors[label_test[_]], marker='x')
+    for _ in range(len(data_train)):
+        plt.scatter(data_train[_, 0], data_train[_, 1], c=colors[label_train[_]], marker='o')
+    plt.show()
 
 
 main()

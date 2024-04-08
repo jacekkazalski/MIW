@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.datasets import make_classification
+from sklearn.datasets import make_blobs
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 
 # Zwraca wynik funkcji sigmoidalnej 1/(1+e^-x) = <0;1>
@@ -27,7 +28,7 @@ class LogisticRegression:
 
             weight_gradient = (1 / n_samples) * np.dot(X.T, (predictions - y))
             bias_gradient = (1 / n_samples) * np.sum(predictions - y)
-            print(weight_gradient, bias_gradient)
+            # print(weight_gradient, bias_gradient)
             self.weights -= self.learning_rate * weight_gradient
             self.bias -= self.learning_rate * bias_gradient
 
@@ -44,16 +45,15 @@ def main():
     n_features = 2
 
     # Generowanie danych
-    data, labels = make_classification(
+    data, labels = make_blobs(
         n_samples=size_of_data,
+        centers=n_classes,
         n_features=n_features,
-        n_informative=2,
-        n_clusters_per_class=1,
-        n_redundant=0,
-        n_classes=n_classes,
-        random_state=1
+        random_state=99
     )
-
+    # Standaryzacja danych
+    scaler = StandardScaler()
+    data = scaler.fit_transform(data)
     # Podział danych
     data_train, data_test, label_train, label_test = train_test_split(data, labels, random_state=0)
     models = []
@@ -62,38 +62,53 @@ def main():
     for _ in range(n_classes):
         model = LogisticRegression()
         binary_labels = np.where(label_train == _, 1, 0)
-        print(binary_labels)
+        # print(binary_labels)
         model.train(data_train, binary_labels)
         models.append(model)
 
-    correct = 0
-    total = len(data_test)
+    # Przewidywanie klas dla danych testowych i wyświetlanie dokładności wyników
+    correct = [0]*4
+    total = [0]*4
+    print(correct)
     predictions = np.zeros(len(data_test))
     predicted_labels = np.zeros(len(data_test))
     for _ in range(len(models)):
         predictions_tmp = models[_].predict(data_test)
 
         for i in range(len(predictions_tmp)):
-            print(f"Model {_} predictions: {predictions_tmp[i]} Highest: {predictions[i]}")
+            # print(f"Model {_} predictions: {predictions_tmp[i]} Highest: {predictions[i]}")
             if predictions_tmp[i] > predictions[i]:
                 predictions[i] = predictions_tmp[i]
                 predicted_labels[i] = _
+    # Zliczanie prawidłowych odpowiedzi
+    for _ in range(len(predicted_labels)):
+        total[int(label_test[_])] += 1
+        if predicted_labels[_] == label_test[_]:
+            correct[int(predicted_labels[_])] += 1
+    print(f"Logistic Regression Accuracy: {np.sum(correct)/ np.sum(total)}")
+    for _ in range(len(correct)):
+        print(f"Accuracy for class {_}: {correct[_]} / {total[_]} {correct[_] / total[_]}")
 
-    for i in range(len(predicted_labels)):
-        print(f" Prediction: {predicted_labels[i]} Actual: {label_test[i]}")
-        if predicted_labels[i] == label_test[i]:
-            correct += 1
-    print(f"Logistic Regression Accuracy: {correct / total}")
+    # Rysowanie wykresu
+    x_min, x_max = data[:, 0].min() - 1, data[:, 0].max() + 1  # Określa zakres na osi x
+    y_min, y_max = data[:, 1].min() - 1, data[:, 1].max() + 1  # Określa zakres na osi y
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
 
-    min_x = np.min(data[:, 0])
-    max_x = np.max(data[:, 0])
-    colors = ['red', 'blue', 'green', 'magenta']
-    for _ in range(len(models)):
-        [a, b] = models[_].weights
-        c = models[_].bias
-        x = np.linspace(min_x, max_x)
-        y = sigmoid((-a*x-c)/b)
-        plt.plot(x, y, color=colors[_])
+    Z = np.zeros(xx.shape, dtype=int)  # Macierz przechowująca klasy dla każdego punktu siatki
+    colors = ['blue', 'red', 'green', 'orange']
+    for i in range(len(xx)):
+        for j in range(len(yy)):
+            point = np.array([xx[i, j], yy[i, j]]).reshape(1, -1)
+            probabilities = [model.predict(point)[0] for model in models]
+            Z[i, j] = np.argmax(probabilities)  # Wybór klasyfikatora z najwyższym prawdopodobieństwem
+    plt.contourf(xx, yy, Z, alpha=0.5, cmap=plt.colormaps['Set3'])
+
+    # Tworzenie etykiet legendy
+    legend_labels = ['Class ' + str(i) for i in range(len(models))]
+    # Dodanie punktu do legendy dla każdej klasy
+    for i in range(len(models)):
+        plt.scatter([], [], c=colors[label_test[i]], label=legend_labels[i])
+    plt.legend(loc='best')  # Wyświetlenie legendy na wykresie
     for _ in range(len(data_test)):
         plt.scatter(data_test[_, 0], data_test[_, 1], c=colors[label_test[_]], marker='x')
     for _ in range(len(data_train)):

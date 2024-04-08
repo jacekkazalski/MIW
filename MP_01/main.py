@@ -91,4 +91,4 @@ def game(rounds, strategy=1):
     plt.show()
 
 
-game(10000, 2)
+game(10000, 1)

@@ -21,7 +21,6 @@ class Perceptron:
                 error = label - prediction
                 self.weights[1:] += self.learning_rate * error * x
                 self.weights[0] += self.learning_rate * error
-
     def predict(self, data_i):
         activation = np.dot(data_i, self.weights[1:]) + self.weights[0]
         return 1 if activation > 0 else 0

@@ -94,8 +94,9 @@ def main():
     y_min, y_max = data[:, 1].min() - 1, data[:, 1].max() + 1  # Określa zakres na osi y
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
 
-    Z = np.zeros(xx.shape, dtype=int)  # Macierz przechowująca klasy dla każdego punktu siatki
+    Z = np.zeros(xx.shape)  # Macierz przechowująca klasy dla każdego punktu siatki
     colors = ['blue', 'red', 'green', 'orange']
+    # Wybór koloru dla każdego z punktów na siatce
     for i in range(len(xx)):
         for j in range(len(yy)):
             point = np.array([xx[i, j], yy[i, j]]).reshape(1, -1)

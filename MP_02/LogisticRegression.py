@@ -114,7 +114,8 @@ def main():
         plt.scatter(data_test[_, 0], data_test[_, 1], c=colors[label_test[_]], marker='x')
     for _ in range(len(data_train)):
         plt.scatter(data_train[_, 0], data_train[_, 1], c=colors[label_train[_]], marker='o')
-    plt.show()
+
+    plt.savefig("log_reg.png")
 
 
 main()

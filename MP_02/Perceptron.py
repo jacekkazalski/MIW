@@ -114,7 +114,7 @@ def main():
     plt.xlim(min_x, max_x)
     plt.ylim(min_y, max_y)
     # Rysowanie wykresu
-    plt.show()
+    plt.savefig("perceptron.png")
 
 
 main()

@@ -12,6 +12,7 @@ transition_matrix_player = [
     [1 / 3, 1 / 3, 1 / 3]
 ]
 states = ['Rock', 'Paper', 'Scissors']
+states_player = ['Paper', 'Scissors', 'Rock']
 
 
 def first_move():
@@ -43,6 +44,7 @@ def calculate_stationary_vector():
     stationary_index = np.argmin(np.abs(eigenvalues - 1.0))
     stationary_vector = np.real(eigenvectors[:, stationary_index])
     stationary_vector /= stationary_vector.sum()
+    print("Stationary vector=", stationary_vector)
     return stationary_vector
 
 
@@ -68,7 +70,7 @@ def learn(last_move, result, learning_rate):
 def game(rounds, strategy=1):
     cash = 0
     cash_history = [cash]
-    learning_rate = 0.02
+    learning_rate = 0.05
     computer_move = first_move()
     player_move = first_move()
     stationary_vector = calculate_stationary_vector()
@@ -79,7 +81,7 @@ def game(rounds, strategy=1):
         cash_history.append(cash)
         computer_move = next_move(computer_move, transition_matrix_computer)
         if strategy == 1:
-            player_move = np.random.choice(states,p=stationary_vector)
+            player_move = np.random.choice(states_player, p=stationary_vector)
         else:
             learn(player_move, result, learning_rate)
             player_move = next_move(player_move, transition_matrix_player)

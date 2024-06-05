@@ -86,7 +86,7 @@ class NeuralNetworkRegression:
 
 # Pobieranie aktualnej daty i godziny
 now = datetime.now()
-XX = 16
+XX = 7
 # Wczytanie danych z pliku
 with open(f"Dane/dane{XX}.txt", "r") as file:
     data = file.readlines()
@@ -105,13 +105,13 @@ X_train, X_test, y_train, y_test = train_test_split(X_data_normalized, y_data_no
 
 # Inicjalizacja i trenowanie sieci neuronowej
 input_size = 1
-hidden_size = 800
+hidden_size = 1000
 output_size = 1
 epochs = 30000
-learning_rate = 0.003
-reg_lambda = 0.02
+learning_rate = 0.001
+reg_lambda = 0.04
 # 0 = relu, 1 = arc_tan
-activation = 1
+activation = 0
 nn = NeuralNetworkRegression(input_size, hidden_size, output_size, 0)
 nn.train(X_train, y_train, epochs=epochs, learning_rate=learning_rate, reg_lambda=reg_lambda)
 
@@ -161,7 +161,7 @@ elif activation == 1:
     der_txt = "1/(1+x^2)\n"
 plt.text(0, 0.5,
          f"DataSet - {XX}\nNeurony - {hidden_size}\nEpoki - {len(nn.history_r2)}\nFunkcja aktywacji "
-         f"-{act_txt}\nPochodna:{der_txt}Inic. wag - rozkład normalny (0,1)\nInic. biasów - 0", fontsize=24,
+         f"-{act_txt}\nPochodna:{der_txt}Inic. wag - rozk. norm.(0,1)\nInic. biasów - 0", fontsize=24,
          verticalalignment='center', horizontalalignment='left')
 
 # Zapisywanie wykresu
